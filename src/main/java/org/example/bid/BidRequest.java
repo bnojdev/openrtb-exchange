@@ -1,6 +1,7 @@
 package org.example.bid;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class BidRequest {
 
@@ -10,16 +11,19 @@ public class BidRequest {
     private final int width;
     private final int height;
 
-    private final String country;
+    private final Country country;
 
     private final BigDecimal floorPrice;
+
+    private final AdType adType;
 
     public BidRequest(String publisherId,
                       String placementId,
                       int width,
                       int height,
-                      String country,
-                      BigDecimal floorPrice) {
+                      Country country,
+                      BigDecimal floorPrice,
+                      AdType adType) {
 
         this.publisherId = publisherId;
         this.placementId = placementId;
@@ -27,6 +31,7 @@ public class BidRequest {
         this.height = height;
         this.country = country;
         this.floorPrice = floorPrice;
+        this.adType = adType;
     }
 
     public String getPublisherId() {
@@ -45,12 +50,16 @@ public class BidRequest {
         return height;
     }
 
-    public String getCountry() {
-        return country;
-    }
-
     public BigDecimal getFloorPrice() {
         return floorPrice;
+    }
+
+    public AdType getAdType() {
+        return adType;
+    }
+
+    public Country getCountry() {
+        return country;
     }
 
     @Override

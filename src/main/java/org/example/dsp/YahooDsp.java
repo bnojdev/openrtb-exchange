@@ -1,11 +1,14 @@
 package org.example.dsp;
 
+import org.example.bid.AdType;
 import org.example.bid.Bid;
 import org.example.bid.BidRequest;
+import org.example.bid.Country;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class YahooDsp implements Dsp{
@@ -36,6 +39,25 @@ public class YahooDsp implements Dsp{
         );
 
         return Optional.of(bid);
+    }
+
+    @Override
+    public Boolean supports(BidRequest bidRequest) {
+        return null;
+    }
+
+    @Override
+    public Set<Country> getSupportedCountries() {
+        return Set.of(Country.IN, Country.US, Country.UK);
+    }
+
+    @Override
+    public Set<AdType> getSupportedAdTypes() {
+        return Set.of(
+                AdType.BANNER,
+                AdType.VIDEO,
+                AdType.NATIVE
+        );
     }
 
     @Override

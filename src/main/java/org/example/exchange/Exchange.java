@@ -5,6 +5,8 @@ import org.example.bid.Bid;
 import org.example.bid.BidCollector;
 import org.example.bid.BidRequest;
 import org.example.dsp.Dsp;
+import org.example.selector.DefaultDspSelector;
+import org.example.selector.DspSelector;
 
 import java.util.*;
 
@@ -12,12 +14,18 @@ public class Exchange {
     private final Map<String, Auction> activeAuctions = new HashMap<>();
     private final List<Dsp> registeredDsps = new ArrayList<>();
     private final BidCollector bidCollector = new BidCollector();
+    private final DspSelector dspSelector;
+
+    public Exchange(DspSelector dspSelector) {
+        this.dspSelector = dspSelector;
+    }
 
     public Auction createAuction(BidRequest request) {
         String auctionID = UUID.randomUUID().toString();
         Auction auction = new Auction(auctionID, request);
         this.activeAuctions.put(auctionID, auction);
-        bidCollector.collectBidsAsync(auction, registeredDsps);
+        List<Dsp> eligibleDsp = dspSelector.select(request, registeredDsps);
+        bidCollector.collectBidsAsync(auction, eligibleDsp);
         return auction;
     }
 

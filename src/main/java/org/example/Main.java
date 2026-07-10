@@ -1,11 +1,14 @@
 package org.example;
 
 import org.example.auction.Auction;
+import org.example.bid.AdType;
 import org.example.bid.BidRequest;
+import org.example.bid.Country;
 import org.example.dsp.AmazonDsp;
 import org.example.dsp.GoogleDsp;
 import org.example.dsp.YahooDsp;
 import org.example.exchange.Exchange;
+import org.example.selector.DefaultDspSelector;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -15,7 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Main {
     public static void main(String[] args) throws InterruptedException {
 
-        Exchange exchange = new Exchange();
+        Exchange exchange = new Exchange(new DefaultDspSelector());
 
         exchange.registerDsp(new GoogleDsp());
         exchange.registerDsp(new YahooDsp());
@@ -23,8 +26,8 @@ public class Main {
 
         BidRequest bidRequest = new BidRequest("pub1",
                 "placement1", 250, 260,
-                "IN", BigDecimal.valueOf(ThreadLocalRandom.current()
-                .nextInt(1, 4)));
+                Country.IN, BigDecimal.valueOf(ThreadLocalRandom.current()
+                .nextInt(1, 4)), AdType.BANNER);
 
         Auction auction = exchange.createAuction(bidRequest);
         Instant now = Instant.now();
