@@ -3,6 +3,7 @@ package org.example.dsp;
 import org.example.bid.*;
 import org.example.campaign.Campaign;
 import org.example.creative.Creative;
+import org.example.strategy.FixedBidStrategy;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -31,7 +32,8 @@ public class AmazonDsp implements Dsp{
                 BigDecimal.valueOf(1000),
                 BigDecimal.valueOf(7),
                 Country.IN,
-                AdType.BANNER
+                AdType.BANNER,
+                new FixedBidStrategy()
         );
 
         primeCampaign.addCreative(
@@ -50,7 +52,8 @@ public class AmazonDsp implements Dsp{
                 BigDecimal.valueOf(2000),
                 BigDecimal.valueOf(9),
                 Country.IN,
-                AdType.BANNER
+                AdType.BANNER,
+                new FixedBidStrategy()
         );
 
         shoppingCampaign.addCreative(
@@ -94,16 +97,22 @@ public class AmazonDsp implements Dsp{
     public Optional<BidResponse> bid(BidRequest request) {
 
         return campaigns.stream()
+
                 .filter(c -> c.canBid(request))
-                .max(Comparator.comparing(Campaign::getMaxBid))
-                .flatMap(campaign ->
-                        campaign.findCreative(request)
+                .map(c -> new CampaignBid(
+                        c,
+                        c.calculateBid(request)
+                ))
+                .max(Comparator.comparing(CampaignBid::getBidPrice))
+                .flatMap(cb ->
+                        cb.getCampaign()
+                                .findCreative(request)
                                 .map(creative ->
                                         new BidResponse(
                                                 this,
-                                                campaign,
+                                                cb.getCampaign(),
                                                 creative,
-                                                campaign.getMaxBid()
+                                                cb.getBidPrice()
                                         )
                                 ));
     }

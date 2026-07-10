@@ -4,6 +4,7 @@ import org.example.bid.AdType;
 import org.example.bid.BidRequest;
 import org.example.bid.Country;
 import org.example.creative.Creative;
+import org.example.strategy.BidStrategy;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ public class Campaign {
 
     private final AdType adType;
 
+    private final BidStrategy bidStrategy;
+
     private final List<Creative> creatives = new ArrayList<>();
 
     public Campaign(String id,
@@ -33,7 +36,7 @@ public class Campaign {
                     BigDecimal budget,
                     BigDecimal maxBid,
                     Country country,
-                    AdType adType) {
+                    AdType adType, BidStrategy bidStrategy) {
 
         this.id = id;
         this.name = name;
@@ -41,6 +44,7 @@ public class Campaign {
         this.maxBid = maxBid;
         this.country = country;
         this.adType = adType;
+        this.bidStrategy = bidStrategy;
         this.status = CampaignStatus.ACTIVE;
     }
 
@@ -120,6 +124,10 @@ public class Campaign {
         return canBid(request)
                 && country == request.getPlacement().getCountry()
                 && adType == request.getPlacement().getAdType();
+    }
+
+    public BigDecimal calculateBid(BidRequest request) {
+        return bidStrategy.calculateBid(request, this);
     }
 
     @Override
