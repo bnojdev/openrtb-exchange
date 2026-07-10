@@ -42,12 +42,12 @@ public class Exchange {
         return auction;
     }
 
-    private void notifyDsp(Auction auction) {
-        for (Dsp dsp : registeredDsps) {
-            Optional<Bid> bid = dsp.submitBid(auction.getBidRequest());
-            bid.ifPresent(auction::acceptBid);
-        }
-    }
+//    private void notifyDsp(Auction auction) {
+//        for (Dsp dsp : registeredDsps) {
+//            Optional<Bid> bid = dsp.submitBid(auction.getBidRequest());
+//            bid.ifPresent(auction::acceptBid);
+//        }
+//    }
 
     public void registerDsp(Dsp dsp) {
         if (dsp == null){

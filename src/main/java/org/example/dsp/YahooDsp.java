@@ -1,17 +1,18 @@
 package org.example.dsp;
 
-import org.example.bid.AdType;
-import org.example.bid.Bid;
-import org.example.bid.BidRequest;
-import org.example.bid.Country;
+import org.example.bid.*;
+import org.example.campaign.Campaign;
+import org.example.creative.Creative;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class YahooDsp implements Dsp{
+
+    private final List<Campaign> campaigns = new ArrayList<>();
+
     @Override
     public String getId() {
         return "3";
@@ -22,28 +23,38 @@ public class YahooDsp implements Dsp{
         return "Yahoo";
     }
 
-    @Override
-    public Optional<Bid> submitBid(BidRequest request) {
-        BigDecimal bidPrice = BigDecimal.valueOf(ThreadLocalRandom.current()
-                .nextInt(1, 11));
+    public YahooDsp() {
 
-        if (bidPrice.compareTo(request.getPlacement().getFloorPrice()) < 0) {
-            return Optional.empty();
-        }
-
-        Bid bid = new Bid(
-                this,
-                bidPrice,
-                Instant.now(),
-                "yahoo-creative-1"
+        Campaign campaign = new Campaign(
+                "y-c1",
+                "Yahoo News",
+                BigDecimal.valueOf(800),
+                BigDecimal.valueOf(5),
+                Country.IN,
+                AdType.BANNER
         );
 
-        return Optional.of(bid);
+        campaign.addCreative(
+                new Creative(
+                        "yahoo-creative-1",
+                        250,
+                        260,
+                        AdType.BANNER,
+                        "https://news.yahoo.com"
+                )
+        );
+
+        campaigns.add(campaign);
     }
 
     @Override
-    public Boolean supports(BidRequest bidRequest) {
-        return null;
+    public Boolean supports(BidRequest request) {
+
+        return getSupportedCountries().contains(
+                request.getPlacement().getCountry())
+                &&
+                getSupportedAdTypes().contains(
+                        request.getPlacement().getAdType());
     }
 
     @Override
@@ -58,6 +69,23 @@ public class YahooDsp implements Dsp{
                 AdType.VIDEO,
                 AdType.NATIVE
         );
+    }
+
+    public Optional<BidResponse> bid(BidRequest request) {
+
+        return campaigns.stream()
+                .filter(c -> c.canBid(request))
+                .max(Comparator.comparing(Campaign::getMaxBid))
+                .flatMap(campaign ->
+                        campaign.findCreative(request)
+                                .map(creative ->
+                                        new BidResponse(
+                                                this,
+                                                campaign,
+                                                creative,
+                                                campaign.getMaxBid()
+                                        )
+                                ));
     }
 
     @Override

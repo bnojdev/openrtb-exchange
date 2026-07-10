@@ -1,9 +1,6 @@
 package org.example.dsp;
 
-import org.example.bid.AdType;
-import org.example.bid.Bid;
-import org.example.bid.BidRequest;
-import org.example.bid.Country;
+import org.example.bid.*;
 
 import java.util.Optional;
 import java.util.Set;
@@ -14,12 +11,14 @@ public interface Dsp {
 
     String getName();
 
-    Optional<Bid> submitBid(BidRequest request);
+//    Optional<Bid> submitBid(BidRequest request);
 
     Boolean supports(BidRequest bidRequest);
 
     Set<Country> getSupportedCountries();
 
     Set<AdType> getSupportedAdTypes();
+
+    Optional<BidResponse> bid(BidRequest request);
 
 }

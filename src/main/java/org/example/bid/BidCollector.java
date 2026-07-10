@@ -3,6 +3,7 @@ package org.example.bid;
 import org.example.auction.Auction;
 import org.example.dsp.Dsp;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -12,16 +13,7 @@ public class BidCollector {
     private final ScheduledExecutorService scheduler =
             Executors.newSingleThreadScheduledExecutor();
 
-    public void collectBids(Auction auction, List<Dsp> registeredDsps) {
-
-        for (Dsp dsp : registeredDsps) {
-            dsp.submitBid(auction.getBidRequest())
-                    .ifPresent(auction::acceptBid);
-        }
-    }
-
     public void collectBidsAsync(Auction auction, List<Dsp> regiDsps) {
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
 
         scheduler.schedule(
                 auction::close,
@@ -31,12 +23,20 @@ public class BidCollector {
 
         for (Dsp dsp : regiDsps) {
             CompletableFuture.runAsync(() -> {
-                dsp.submitBid(auction.getBidRequest())
-                        .ifPresent(auction::acceptBid);
+                dsp.bid(auction.getBidRequest())
+                        .ifPresent(response -> {
+
+                            Bid bid = new Bid(
+                                    response.getDsp(),
+                                    response.getBidPrice(),
+                                    Instant.now(),
+                                    response.getCreative().getId()
+                            );
+
+                            auction.acceptBid(bid);
+                        });
             }, executorService);
         }
 
-//        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-//                .thenRun(auction::close);
     }
 }
