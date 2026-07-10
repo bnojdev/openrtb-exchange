@@ -27,7 +27,7 @@ public class AmazonDsp implements Dsp{
         BigDecimal bidPrice = BigDecimal.valueOf(ThreadLocalRandom.current()
                 .nextInt(1, 11));
 
-        if (bidPrice.compareTo(request.getFloorPrice()) < 0) {
+        if (bidPrice.compareTo(request.getPlacement().getFloorPrice()) < 0) {
             return Optional.empty();
         }
 

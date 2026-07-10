@@ -5,6 +5,7 @@ import org.example.bid.Bid;
 import org.example.bid.BidCollector;
 import org.example.bid.BidRequest;
 import org.example.dsp.Dsp;
+import org.example.publisher.Placement;
 import org.example.selector.DefaultDspSelector;
 import org.example.selector.DspSelector;
 
@@ -20,12 +21,24 @@ public class Exchange {
         this.dspSelector = dspSelector;
     }
 
-    public Auction createAuction(BidRequest request) {
-        String auctionID = UUID.randomUUID().toString();
-        Auction auction = new Auction(auctionID, request);
-        this.activeAuctions.put(auctionID, auction);
-        List<Dsp> eligibleDsp = dspSelector.select(request, registeredDsps);
-        bidCollector.collectBidsAsync(auction, eligibleDsp);
+    public Auction createAuction(Placement placement) {
+
+        BidRequest request = new BidRequest(
+                UUID.randomUUID().toString(),
+                placement
+        );
+
+        String auctionId = UUID.randomUUID().toString();
+
+        Auction auction = new Auction(auctionId, request);
+
+        activeAuctions.put(auctionId, auction);
+
+        List<Dsp> eligibleDsps =
+                dspSelector.select(request, registeredDsps);
+
+        bidCollector.collectBidsAsync(auction, eligibleDsps);
+
         return auction;
     }
 

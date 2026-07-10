@@ -8,6 +8,8 @@ import org.example.dsp.AmazonDsp;
 import org.example.dsp.GoogleDsp;
 import org.example.dsp.YahooDsp;
 import org.example.exchange.Exchange;
+import org.example.publisher.Placement;
+import org.example.publisher.Publisher;
 import org.example.selector.DefaultDspSelector;
 
 import java.math.BigDecimal;
@@ -24,15 +26,28 @@ public class Main {
         exchange.registerDsp(new YahooDsp());
         exchange.registerDsp(new AmazonDsp());
 
-        BidRequest bidRequest = new BidRequest("pub1",
-                "placement1", 250, 260,
-                Country.IN, BigDecimal.valueOf(ThreadLocalRandom.current()
-                .nextInt(1, 4)), AdType.BANNER);
+        Publisher publisher = new Publisher("pub1", "News18");
 
-        Auction auction = exchange.createAuction(bidRequest);
+        Placement placement = new Placement(
+                "placement1",
+                250,
+                260,
+                Country.IN,
+                AdType.BANNER,
+                BigDecimal.valueOf(
+                        ThreadLocalRandom.current().nextInt(1, 4))
+        );
+
+        publisher.addPlacement(placement);
+
+        Auction auction = exchange.createAuction(placement);
+
         Instant now = Instant.now();
+
         Thread.sleep(200);
-        System.out.println("Auction details : "+auction);
+
+        System.out.println("Auction Details: " + auction);
         System.out.println(Duration.between(now, Instant.now()).toMillis() + " ms");
+
     }
 }

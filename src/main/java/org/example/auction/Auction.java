@@ -79,7 +79,7 @@ public class Auction {
             return false;
         }
 
-        return bid.getPrice().compareTo(bidRequest.getFloorPrice()) >= 0;
+        return bid.getPrice().compareTo(bidRequest.getPlacement().getFloorPrice()) >= 0;
     }
 
     public void updateWinningBid(Bid bid) {
