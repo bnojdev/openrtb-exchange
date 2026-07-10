@@ -45,8 +45,8 @@ public class Main {
         Instant now = Instant.now();
 
         Thread.sleep(200);
-
-        System.out.println("Auction Details: " + auction);
+        System.out.println("Placement Details: " + placement);
+        System.out.println("Auction Details: " + auction.getResult());
         System.out.println(Duration.between(now, Instant.now()).toMillis() + " ms");
 
     }

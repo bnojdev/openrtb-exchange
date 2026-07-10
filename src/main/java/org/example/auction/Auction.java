@@ -6,6 +6,7 @@ import org.example.bid.BidRequest;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -48,25 +49,22 @@ public class Auction {
     }
 
     public List<Bid> getBids() {
-        return bids;
+        return Collections.unmodifiableList(bids);
     }
 
     public Bid getWinningBid() {
         return winningBid;
     }
 
-    public void setWinningBid(Bid winningBid) {
-        this.winningBid = winningBid;
-    }
-
-    public synchronized void acceptBid(Bid bid) {
+    public synchronized boolean acceptBid(Bid bid) {
         boolean valid = validateBid(bid);
         if (!valid) {
-            throw new IllegalArgumentException("Bid is not in valid state");
+            return false;
         }
 
         bids.add(bid);
         updateWinningBid(bid);
+        return true;
     }
 
     public boolean validateBid(Bid bid) {
@@ -82,7 +80,7 @@ public class Auction {
         return bid.getPrice().compareTo(bidRequest.getPlacement().getFloorPrice()) >= 0;
     }
 
-    public void updateWinningBid(Bid bid) {
+    private void updateWinningBid(Bid bid) {
         if (winningBid == null) {
             winningBid = bid;
             return;
@@ -133,5 +131,20 @@ public class Auction {
         }
 
         return Duration.between(startTime, endTime);
+    }
+
+    public AuctionResult getResult() {
+
+        if (status != AuctionStatus.CLOSED) {
+            throw new IllegalStateException("Auction is still open");
+        }
+
+        return new AuctionResult(
+                auctionId,
+                winningBid,
+                bids.size(),
+                startTime,
+                endTime
+        );
     }
 }
